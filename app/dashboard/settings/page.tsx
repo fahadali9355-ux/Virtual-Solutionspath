@@ -36,41 +36,7 @@ export default function SettingsPage() {
       
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Settings</h1>
-        <p className="text-slate-500">Manage your preferences and account settings.</p>
-      </div>
-
-      {/* --- 1. NOTIFICATIONS --- */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden transition-colors">
-         <div className="p-6 border-b border-slate-100">
-            <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-               {/* 🔔 Ye Bell Icon sirf design ke liye hai, taake pata chale ye Notifications ka section hai */}
-               <Bell size={20} className="text-blue-600"/> Notifications
-            </h3>
-         </div>
-         <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-               <div>
-                  <h4 className="font-bold text-slate-700">Email Notifications</h4>
-                  <p className="text-sm text-slate-500">Receive updates about your course progress.</p>
-               </div>
-               <button 
-                 onClick={() => setEmailNotifs(!emailNotifs)}
-                 className={`w-12 h-6 rounded-full p-1 transition-colors ${emailNotifs ? "bg-blue-600" : "bg-slate-300"}`}
-               >
-                 <div className={`w-4 h-4 bg-white rounded-full shadow-md transition-transform ${emailNotifs ? "translate-x-6" : "translate-x-0"}`}></div>
-               </button>
-            </div>
-            
-            <div className="flex items-center justify-between">
-               <div>
-                  <h4 className="font-bold text-slate-700">Live Class Alerts</h4>
-                  <p className="text-sm text-slate-500">Get notified 15 mins before class starts.</p>
-               </div>
-               <button className="w-12 h-6 rounded-full p-1 bg-blue-600 transition-colors">
-                 <div className="w-4 h-4 bg-white rounded-full shadow-md translate-x-6"></div>
-               </button>
-            </div>
-         </div>
+        <p className="text-slate-500">Manage your account setting.</p>
       </div>
 
       {/* --- 2. DANGER ZONE --- */}

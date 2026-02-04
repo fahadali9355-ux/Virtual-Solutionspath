@@ -32,7 +32,7 @@ export default function ForgotPassword() {
         setStep(2); // Move to Code Step
         setMessage("Code sent to your email!");
       } else {
-        setError(data.error);
+        setError(data.error || "Failed to send code");
       }
     } catch (err) { setError("Something went wrong"); }
     setLoading(false);
@@ -44,16 +44,20 @@ export default function ForgotPassword() {
     setLoading(true); setError("");
     
     try {
+      // API call main email aur code dono bhej rahay hain
       const res = await fetch("/api/auth/verify-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code }),
       });
+      
+      const data = await res.json();
+
       if (res.ok) {
         setStep(3); // Move to New Password Step
         setMessage("Code Verified! Set new password.");
       } else {
-        setError("Invalid or Expired Code");
+        setError(data.error || "Invalid Code");
       }
     } catch (err) { setError("Verification failed"); }
     setLoading(false);
@@ -76,11 +80,14 @@ export default function ForgotPassword() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code, newPassword: passwords.new }),
       });
+      
+      const data = await res.json();
+
       if (res.ok) {
         alert("Password Changed Successfully! Login Now.");
         router.push("/login");
       } else {
-        setError("Failed to reset password");
+        setError(data.error || "Failed to reset password");
       }
     } catch (err) { setError("Error resetting password"); }
     setLoading(false);
@@ -120,7 +127,7 @@ export default function ForgotPassword() {
         {step === 2 && (
           <form onSubmit={handleVerifyCode} className="space-y-4">
              <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-center">
-               <input type="text" required maxLength={6} placeholder="123456" value={code} onChange={(e)=>setCode(e.target.value)} className="bg-transparent outline-none w-full text-center text-2xl font-bold tracking-widest"/>
+               <input type="text" required placeholder="123456" value={code} onChange={(e)=>setCode(e.target.value)} className="bg-transparent outline-none w-full text-center text-2xl font-bold tracking-widest text-slate-800"/>
             </div>
             <button disabled={loading} className="w-full bg-[#082F49] text-white py-3 rounded-xl font-bold hover:bg-[#0C4A6E] transition-all flex justify-center">
                {loading ? <Loader2 className="animate-spin"/> : "Verify Code"}

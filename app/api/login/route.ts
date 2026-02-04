@@ -1,32 +1,42 @@
 import { NextResponse } from "next/server";
-import { connectDB }  from "@/lib/db";
+import { connectDB } from "@/lib/db";
 import User from "@/models/User";
+import bcrypt from "bcryptjs"; // Agar bcrypt use kar rahay hain
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
-
-    // 1. Database se connect karo
     await connectDB();
 
-    // 2. User ko email se dhoondo
     const user = await User.findOne({ email });
-
-    // Agar user na mile
+    
+    // Check User & Password
     if (!user) {
-      return NextResponse.json({ message: "Ye email register nahi hai." }, { status: 400 });
+        return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
+    }
+    
+    // Agar password encrypted hai (bcrypt)
+    // const isMatch = await bcrypt.compare(password, user.password);
+    
+    // Agar simple string password hai (Filhal development k liye)
+    const isMatch = password === user.password; 
+
+    if (!isMatch) {
+        return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
     }
 
-    // 3. Password match karo
-    // (Filhal hum direct check kar rahe hain, baad main isay secure karenge)
-    if (user.password !== password) {
-      return NextResponse.json({ message: "Password ghalat hai!" }, { status: 400 });
-    }
+    // 👇 RETURN RESPONSE (Yahan ID bhejna zaroori hai)
+    return NextResponse.json({
+        message: "Login Successful",
+        user: {
+            _id: user._id, // 👈 YE CHEEZ ZAROORI HAI
+            name: user.name,
+            email: user.email,
+            role: user.role
+        }
+    });
 
-    // 4. Sab theek hai! Success message bhejo
-    return NextResponse.json({ message: "Login Successful!", user: user.name }, { status: 200 });
-
-  } catch (error) {
-    return NextResponse.json({ message: "Error logging in." }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: "Error logging in" }, { status: 500 });
   }
 }

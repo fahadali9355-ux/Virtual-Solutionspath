@@ -9,13 +9,13 @@ export async function POST(req: Request) {
 
     // 👇 1. FIXED ADMIN LOGIN (Yahan Magic Hoga)
     // Agar ye email aur password match hua, to direct Admin access milegi.
-    if (email === "virtualsolutios.path@gmail.com" && password === "Virtual@123") {
+    if (email === "virtualsolutions.path@gmail.com" && password === "Virtual@123") {
       return NextResponse.json({
         message: "Welcome Admin! 👑",
         user: {
           name: "Super Admin",
-          email: "virtualsolutios.path@gmail.com",
-          role: "admin", // 👈 Ye role frontend ko batayega k ye admin hai
+          email: "virtualsolutions.path@gmail.com",
+          role: "admin",
           image: ""
         },
       }, { status: 200 });

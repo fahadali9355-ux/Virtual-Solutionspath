@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Award, LogOut, Menu, Loader2, Plus, Edit } from "lucide-react";
+import { LayoutDashboard, Users, Award, LogOut, Menu, Loader2, Plus, Edit, CreditCard , Settings } from "lucide-react"; // 👈 CreditCard added
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -31,10 +31,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const menuItems = [
     { name: "Dashboard", icon: LayoutDashboard, link: "/admin" },
+    { name: "Fee Verification", icon: CreditCard, link: "/admin/payments" }, // 👈 NEW: Payment Page Link
     { name: "Manage Courses", icon: Edit, link: "/admin/manage-courses" },
     { name: "Add New Course", icon: Plus, link: "/admin/add-course" },
     { name: "Certificate Requests", icon: Award, link: "/admin/certificates" },
     { name: "All Students", icon: Users, link: "/admin/students" },
+    
   ];
 
   const handleLogout = () => {
@@ -45,10 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex h-screen bg-slate-100 font-sans text-slate-900 overflow-hidden">
       
-      {/* 👇 1. MOBILE OVERLAY (Ye naya hai) 
-          Jab menu khula hoga, ye peeche black color layega.
-          Is par click karne se menu band ho jayega. 
-      */}
+      {/* MOBILE OVERLAY */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 lg:hidden glass"
@@ -65,7 +64,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       `}>
         
         <div className="h-20 flex items-center px-6 border-b border-white/10 bg-slate-950">
-           <span className="text-lg font-bold tracking-wide text-white block">VSP Admin</span>
+          <img src="/images/img1.png" alt="Course Image" className="w-10 h-10 m-2 rounded-lg" />
+           <div className="text-lg font-bold tracking-wide text-white block"> VSP Admin</div>
         </div>
 
         <nav className="flex-1 px-4 mt-8 space-y-2 overflow-y-auto">
@@ -75,10 +75,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link 
                 key={item.name} 
                 href={item.link}
-                // 👇 2. AUTO CLOSE ON CLICK
                 onClick={() => setSidebarOpen(false)} 
                 className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium
-                  ${isActive ? "bg-red-600 text-white" : "text-slate-400 hover:bg-white/5"}
+                  ${isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50" : "text-slate-400 hover:bg-white/5 hover:text-white"}
                 `}
               >
                 <item.icon size={20} />

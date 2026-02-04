@@ -1,46 +1,21 @@
 import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Please provide a name"],
-  },
-  email: {
-    type: String,
-    required: [true, "Please provide an email"],
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: [true, "Please provide a password"],
-  },
-  phone: {
-    type: String,
-    default: "",
-  },
-  // 👇 Ye Field add karna zaroori hai
-  image: {
-    type: String, // Hum image ko text (Base64) bana kar save karenge
-    default: "",
-  },
-  role: {
-    type: String,
-    default: "student", // student or admin
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  
-  enrolledCourses: {
-    type: [String], // Courses k IDs yahan save honge
-    default: []},
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, default: "student" },
+  enrolledCourses: { type: [String], default: [] },
+  resetPasswordToken: { type: String },
+  resetPasswordExpire: { type: Date },
+  phone: { type: String, default: "" },
+  image: { type: String, default: "" },
+  isVerified: { type: Boolean , default: false, },
+  verificationCode: String,
+  verificationCodeExpire: Date,
+  feeRecords: [ { courseSlug: String, totalFee: Number, paidAmount: Number, discount: { type: Number, default: 0 } } ]
+}, { timestamps: true });
 
-const User = mongoose.models.users || mongoose.model("users", UserSchema);
+const User = mongoose.models.User || mongoose.model("User", UserSchema);
 
 export default User;

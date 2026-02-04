@@ -18,7 +18,7 @@ export default function ProfilePage() {
     name: "",
     email: "",
     phone: "",
-    image: "", // 👇 Image k liye field add ki
+    image: "", 
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -47,10 +47,10 @@ export default function ProfilePage() {
             name: data.user.name,
             email: data.user.email,
             phone: data.user.phone || "",
-            image: data.user.image || "", // 👇 Database se image uthayi
+            image: data.user.image || "", 
           }));
 
-          // Sidebar ko sync rakhne k liye LocalStorage update kia
+          // 👇 Sync Sidebar Immediately on Load
           if(data.user.image) localStorage.setItem("profileImage", data.user.image);
           if(data.user.name) localStorage.setItem("userName", data.user.name);
           window.dispatchEvent(new Event("storage"));
@@ -70,28 +70,32 @@ export default function ProfilePage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 👇 3. Handle Image Upload (Convert to Base64)
+  // 3. Handle Image Upload (Limit Size & Convert)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check size (Limit to 2MB to avoid DB overload)
+      if (file.size > 2 * 1024 * 1024) {
+        setError("Image size is too large! Please upload under 2MB.");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
-        // State update ki taake foran nazar aaye preview
         setFormData((prev) => ({ ...prev, image: base64String }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // 4. Update Profile Logic (Send to MongoDB)
+  // 4. Update Profile Logic
   const handleUpdate = async (e: any) => {
     e.preventDefault();
     setUpdating(true);
     setMessage("");
     setError("");
 
-    // Validation
     if (showPasswordSection && formData.newPassword) {
         if (formData.newPassword !== formData.confirmPassword) {
             setError("New passwords do not match!");
@@ -113,7 +117,7 @@ export default function ProfilePage() {
             email: formData.email,
             name: formData.name,
             phone: formData.phone,
-            image: formData.image, // 👇 Image bhi database main bhej rahe hain
+            image: formData.image, // Sending Base64 string
             currentPassword: formData.currentPassword, 
             newPassword: formData.newPassword
         }),
@@ -124,12 +128,11 @@ export default function ProfilePage() {
       if (res.ok) {
         setMessage("Profile updated successfully! ✅");
         
-        // 👇 Sidebar Sync Logic (Database update hogaya, ab UI sync karo)
+        // 👇 Sidebar Sync Logic
         localStorage.setItem("userName", formData.name);
         if(formData.image) localStorage.setItem("profileImage", formData.image);
-        window.dispatchEvent(new Event("storage")); // Trigger Sidebar Update
+        window.dispatchEvent(new Event("storage"));
         
-        // Clear sensitive fields
         setFormData(prev => ({ ...prev, currentPassword: "", newPassword: "", confirmPassword: "" }));
         setShowPasswordSection(false); 
       } else {
@@ -159,17 +162,16 @@ export default function ProfilePage() {
         <div className="md:col-span-1">
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm text-center sticky top-24">
              
-             {/* 👇 Image Section Updated */}
+             {/* Image Section */}
              <div className="relative w-32 h-32 mx-auto mb-4 group">
                <div className="w-full h-full rounded-full bg-blue-100 flex items-center justify-center border-4 border-white shadow-lg overflow-hidden">
                  {formData.image ? (
                     <img src={formData.image} alt="Profile" className="w-full h-full object-cover" />
                  ) : (
-                    <span className="text-3xl font-bold text-blue-600">{formData.name.charAt(0).toUpperCase()}</span>
+                    <span className="text-3xl font-bold text-blue-600">{formData.name?.charAt(0).toUpperCase()}</span>
                  )}
                </div>
                
-               {/* Camera Button */}
                <label className="absolute bottom-1 right-1 bg-slate-800 text-white p-2.5 rounded-full hover:bg-blue-600 transition-colors shadow-md cursor-pointer">
                  <Camera size={16} />
                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
@@ -308,12 +310,12 @@ export default function ProfilePage() {
               {/* Submit Button */}
               <div className="pt-4 flex justify-end">
                  <button 
-                   type="submit" 
-                   disabled={updating}
-                   className="bg-[#082F49] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#0C4A6E] transition-all flex items-center gap-2 shadow-lg disabled:opacity-70"
+                    type="submit" 
+                    disabled={updating}
+                    className="bg-[#082F49] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#0C4A6E] transition-all flex items-center gap-2 shadow-lg disabled:opacity-70"
                  >
-                   {updating ? <Loader2 className="animate-spin" size={20}/> : <Save size={20} />}
-                   Save Changes
+                    {updating ? <Loader2 className="animate-spin" size={20}/> : <Save size={20} />}
+                    Save Changes
                  </button>
               </div>
 

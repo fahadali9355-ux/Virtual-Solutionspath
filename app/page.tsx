@@ -38,11 +38,12 @@ export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   
-  // 👇 NEW: Database courses k liye State
+  // 👇 STATES
   const [courses, setCourses] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>([]); // 👈 New Category State
   const [loading, setLoading] = useState(true);
 
-  // 1. Check Auth & Fetch Courses
+  // 1. Check Auth & Fetch Data
   useEffect(() => {
     // Auth Check
     const userEmail = localStorage.getItem("userEmail");
@@ -53,22 +54,30 @@ export default function HomePage() {
       if (name) setUserName(name);
     }
 
-    // Fetch Courses from Database (API)
-    const fetchCourses = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/courses"); // 👈 API Call
-        const data = await res.json();
-        if (data.courses) {
-           setCourses(data.courses);
+        // 1. Fetch Courses
+        const coursesRes = await fetch("/api/courses");
+        const coursesData = await coursesRes.json();
+        if (coursesData.courses) {
+           setCourses(coursesData.courses);
         }
+
+        // 2. Fetch Categories (Dynamic Footer)
+        const catRes = await fetch("/api/categories");
+        const catData = await catRes.json();
+        if (catData.categories) {
+            setCategories(catData.categories);
+        }
+
       } catch (error) {
-        console.error("Failed to fetch courses");
+        console.error("Failed to fetch data");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCourses();
+    fetchData();
   }, []);
   
   // Smooth Scroll Function
@@ -93,7 +102,7 @@ export default function HomePage() {
           
           {/* Logo */}
           <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-[#082F49]">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">V</div>
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg"><img src="/images/img1.png" alt="Course Image" className="w-full h-auto rounded-lg" /></div>
             <span>Virtual Solution Path</span>
           </div>
 
@@ -101,8 +110,8 @@ export default function HomePage() {
           <div className="hidden md:flex gap-8 text-sm font-semibold text-slate-600">
             <Link href="/" className="hover:text-blue-600 transition-colors">Home</Link>
             <button onClick={scrollToCourses} className="hover:text-blue-600 transition-colors">Courses</button>
-            <a href="#" className="hover:text-blue-600 transition-colors">About</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Contact</a>
+            <a href="/about" className="hover:text-blue-600 transition-colors">About</a>
+            <a href="/contact" className="hover:text-blue-600 transition-colors">Contact</a>
           </div>
 
           {/* Auth Buttons (Dynamic Logic) */}
@@ -222,13 +231,13 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6"
           >
-             <div>
-                <h2 className="text-3xl font-bold text-[#082F49]">Explore Popular Courses</h2>
-                <p className="text-slate-500 mt-3 text-lg">Choose from our most enrolled programs.</p>
-             </div>
-             <button onClick={scrollToCourses} className="hidden md:flex items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors">
-               View All Courses <ArrowRight size={18}/>
-             </button>
+              <div>
+                 <h2 className="text-3xl font-bold text-[#082F49]">Explore Popular Courses</h2>
+                 <p className="text-slate-500 mt-3 text-lg">Choose from our most enrolled programs.</p>
+              </div>
+              <button onClick={scrollToCourses} className="hidden md:flex items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors">
+                View All Courses <ArrowRight size={18}/>
+              </button>
           </motion.div>
 
           {/* 👇 LOADING CHECK */}
@@ -316,30 +325,29 @@ export default function HomePage() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          
-          <motion.div variants={fadeInUp} className="flex flex-col md:flex-row justify-between items-center border-b border-white/10 pb-12 mb-12 gap-8">
-             <div>
-                <h3 className="text-2xl font-bold mb-2">Join our Newsletter</h3>
-                <p className="text-slate-400">Get the latest news, updates and offers.</p>
-             </div>
-             <div className="flex w-full md:w-auto gap-2">
-                <input type="email" placeholder="Enter your email" className="bg-white/5 border border-white/10 rounded-full px-6 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 w-full md:w-80" />
-                <button className="bg-[#0284C7] hover:bg-[#0369A1] px-6 py-3 rounded-full font-bold transition-all">Subscribe</button>
-             </div>
-          </motion.div>
 
           <div className="grid md:grid-cols-4 gap-12">
             <motion.div variants={fadeInUp} className="col-span-1 md:col-span-1 space-y-6">
               <div className="flex items-center gap-2 font-bold text-2xl">
-                  <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm">V</span>
+                  <span className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm"><img src="/images/img1.png" alt="Course Image" className="w-full h-auto rounded-lg" /></span>
                 <span>VSP.</span>
               </div>
               <p className="text-slate-400 leading-relaxed text-sm">
                 Virtual Solution Path is a leading EdTech platform dedicated to empowering students with future-ready digital skills.
               </p>
               <div className="flex gap-4">
-                  {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
-                    <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#0284C7] hover:text-white transition-all text-slate-400">
+                  {[Facebook].map((Icon, i) => (
+                    <a key={i} href="https://www.facebook.com/profile.php?id=61578931048075&rdid=b6Qzyk1wOCXcPxgM&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1Ax7ehFaZg%2F#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#0284C7] hover:text-white transition-all text-slate-400">
+                      <Icon size={18} />
+                    </a>
+                  ))}
+                  {[Instagram].map((Icon, i) => (
+                    <a key={i} href="https://www.instagram.com/virtualsolutionspath/" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#0284C7] hover:text-white transition-all text-slate-400">
+                      <Icon size={18} />
+                    </a>
+                  ))}
+                  {[Linkedin].map((Icon, i) => (
+                    <a key={i} href="https://www.linkedin.com/company/virtual-solutions-path/" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#0284C7] hover:text-white transition-all text-slate-400">
                       <Icon size={18} />
                     </a>
                   ))}
@@ -350,17 +358,30 @@ export default function HomePage() {
               <h4 className="font-bold text-lg mb-6">Quick Links</h4>
               <ul className="space-y-4 text-sm text-slate-400">
                 <li><Link href="/" className="hover:text-cyan-400 transition-colors flex items-center gap-2">Home</Link></li>
+                <li><button onClick={scrollToCourses} className="hover:text-cyan-400 transition-colors flex items-center gap-2 text-left"> Courses </button></li>
                 <li><Link href="/login" className="hover:text-cyan-400 transition-colors flex items-center gap-2">Login</Link></li>
                 <li><Link href="/signup" className="hover:text-cyan-400 transition-colors flex items-center gap-2">Sign Up</Link></li>
               </ul>
             </motion.div>
 
+             {/* 👇 DYNAMIC CATEGORIES IN FOOTER */}
              <motion.div variants={fadeInUp}>
               <h4 className="font-bold text-lg mb-6">Categories</h4>
               <ul className="space-y-4 text-sm text-slate-400">
-                {['Web Development', 'Digital Marketing', 'Graphic Design', 'Video Editing', 'Freelancing'].map(item => (
-                  <li key={item}><a href="#" className="hover:text-cyan-400 transition-colors">{item}</a></li>
-                ))}
+                {categories.length === 0 ? (
+                    <>
+                      {/* Loading State or Fallback */}
+                      <li>Loading...</li>
+                    </>
+                ) : (
+                    categories.map((item, index) => (
+                        <li key={index}>
+                            <Link href={`/courses?category=${item}`} className="hover:text-cyan-400 transition-colors capitalize">
+                                {item}
+                            </Link>
+                        </li>
+                    ))
+                )}
               </ul>
             </motion.div>
             
@@ -369,27 +390,30 @@ export default function HomePage() {
                <ul className="space-y-4 text-sm text-slate-400">
                  <li className="flex items-start gap-3">
                    <MapPin className="text-[#0284C7] shrink-0" size={20} />
-                   <span>123 Education Street, Tech City, Pakistan</span>
+                   <span>Admission Office, Bank Lane near State bank, Faisalabad</span>
                  </li>
                  <li className="flex items-center gap-3">
                    <Phone className="text-[#0284C7] shrink-0" size={20} />
-                   <span>+92 300 1234567</span>
+                   <span>+92 321 0030888</span>
+                   <span>+92 318 2009250</span>
                  </li>
                  <li className="flex items-center gap-3">
                    <Mail className="text-[#0284C7] shrink-0" size={20} />
-                   <span>support@virtualsolutionpath.com</span>
+                   <span>virtualsolutions.path@gmail.com</span>
                  </li>
                </ul>
             </motion.div>
           </div>
 
           <motion.div variants={fadeInUp} className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
-             <p>© 2026 Virtual Solution Path. All rights reserved.</p>
-             <div className="flex gap-6 mt-4 md:mt-0">
-               <a href="#" className="hover:text-white">Privacy Policy</a>
-               <a href="#" className="hover:text-white">Terms of Service</a>
-               <a href="#" className="hover:text-white">Cookie Policy</a>
-             </div>
+              <p>© 2026 Virtual Solution Path. All rights reserved.</p>
+              
+              {/* 👇 UPDATED LEGAL LINKS */}
+              <div className="flex gap-6 mt-4 md:mt-0">
+                <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+                <Link href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link>
+              </div>
           </motion.div>
 
         </div>

@@ -89,8 +89,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Brand Logo */}
         <div className="h-20 flex items-center px-6 border-b border-white/10 bg-[#0C4A6E]">
            <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10">
-                <img src="/images/img1.png" alt="VSP Logo" className="w-8 h-8 object-contain" />
+             <div className="  flex items-center justify-center">
+                <img src="/images/img1.png" alt="VSP Logo" className="w-8 h-8 rounded-full object-contain" />
              </div>
              <span className="text-xl font-bold tracking-wide text-white">VSP.</span>
            </div>

@@ -1,33 +1,34 @@
 import { NextResponse } from "next/server";
-import { connectDB }  from "@/lib/db";   // 👈 اب ہم جدید راستہ استعمال کر رہے ہیں
-import User from "@/models/User";   // 👈 یہ بھی جدید راستہ ہے
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
+import bcrypt from "bcryptjs"; // 👈 Ye library zaroori hai
 
 export async function POST(req: Request) {
-  console.log("API Shuru hui..."); // 👇 یہ ٹرمینل میں پرنٹ ہوگا
-
   try {
-    const body = await req.json();
-    console.log("Data aaya:", body);
-
+    const { name, email, phone, password } = await req.json();
     await connectDB();
-    console.log("Database Connect ho gaya!");
 
-    const { name, email, password, phone } = body;
-
-    // Check karo user pehle se to nahi?
+    // 1. Check karo user pehle se to nahi hai?
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return NextResponse.json({ message: "User already exists." }, { status: 400 });
+      return NextResponse.json({ message: "User already exists with this email!" }, { status: 400 });
     }
 
-    // Naya user banao
-    const newUser = await User.create({ name, email, password, phone });
-    console.log("User Ban gaya:", newUser);
+    // 2. PASSWORD HASHING (Sab se Zaroori Step) 🔒
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    return NextResponse.json({ message: "User registered successfully!" }, { status: 201 });
+    // 3. User Save karo
+    await User.create({
+      name,
+      email,
+      phone,
+      password: hashedPassword, // 👈 Hash wala password save hoga
+      role: "student" // Default role student
+    });
+
+    return NextResponse.json({ message: "Account Created Successfully!" }, { status: 201 });
 
   } catch (error: any) {
-    console.error("ASLI ERROR YE HAI 👉:", error); // 👈 یہ ہمیں اصلی وجہ بتائے گا
-    return NextResponse.json({ message: "Error: " + error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
