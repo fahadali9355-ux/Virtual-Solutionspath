@@ -23,13 +23,17 @@ export async function POST(req: Request) {
     const lessons = formData.get("lessons") as string;
     const desc = formData.get("desc") as string;
     const curriculumString = formData.get("curriculum") as string;
+    
+    // 👇 NAYI FIELD: Learning Points ko frontend se receive karna
+    const learningString = formData.get("learningPoints") as string; 
+    
     const imageFile = formData.get("image") as File;
 
     if (!imageFile) {
         return NextResponse.json({ error: "Image is required" }, { status: 400 });
     }
 
-    // 👇 NEW LOGIC: Agar Slug nahi diya, tu Title se bana lo
+    // Slug Logic: Agar Slug nahi diya, tu Title se bana lo
     if (!slug || slug.trim() === "") {
         slug = title
             .toLowerCase()             // Chota karein
@@ -40,6 +44,13 @@ export async function POST(req: Request) {
     } else {
         // Agar user ne slug dia hai, tab bhi usay clean karein (no spaces)
         slug = slug.toLowerCase().replace(/\s+/g, "-");
+    }
+
+    // 👇 NAYI LOGIC: Learning Points ko Array main convert karein
+    let learningPoints: string[] = [];
+    if (learningString) {
+        // Comma se alag karo, extra spaces hatav, aur khali values nikal do
+        learningPoints = learningString.split(",").map(p => p.trim()).filter(p => p !== "");
     }
 
     await connectDB();
@@ -69,12 +80,13 @@ export async function POST(req: Request) {
     // 4. Save to DB
     const newCourse = new Course({
       title,
-      slug, // ✅ Ab ye kabhi khali nahi hoga
+      slug, 
       category,
       price,
       duration,
       lessons,
       desc: desc,
+      learningPoints, // ✅ Ab yeh Array ki shakal main Database main jayega
       curriculum,
       image: uploadResponse.secure_url,
     });

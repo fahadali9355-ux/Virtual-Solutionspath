@@ -9,7 +9,8 @@ const CourseSchema = new mongoose.Schema({
   duration: { type: String, required: true },
   lessons: { type: String, required: true },
   desc: { type: String, required: true },
-  curriculum: { type: [String], default: [] }, // List of topics
+  learningPoints: { type: [String], default: [] },
+  curriculum: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
 });
 

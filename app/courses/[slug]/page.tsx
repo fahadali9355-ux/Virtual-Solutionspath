@@ -11,14 +11,32 @@ export default async function CourseDetail({ params }: { params: Promise<{ slug:
 
   await connectDB();
   
-  // 1. Data fetch karein (.lean() use karein)
   const courseRaw = await Course.findOne({ slug }).lean();
 
   if (!courseRaw) return notFound();
 
-  // 👇 2. FIX: Ye line ERROR khatam karegi
-  // (MongoDB object ko simple JSON main convert kar rahe hain taa k _id ka masla na aye)
+  // MongoDB object ko simple JSON main convert kar rahe hain
   const course = JSON.parse(JSON.stringify(courseRaw));
+
+  // 👇 SUPER FIX 1: Learning Points ko hamesha Array banayen
+  let finalLearningPoints = [];
+  if (course.learningPoints) {
+      if (Array.isArray(course.learningPoints)) {
+          finalLearningPoints = course.learningPoints;
+      } else if (typeof course.learningPoints === "string") {
+          try { finalLearningPoints = JSON.parse(course.learningPoints); } catch(e){}
+      }
+  }
+
+  // 👇 SUPER FIX 2: Curriculum ko hamesha Array banayen (Ye error khatam karega)
+  let finalCurriculum = [];
+  if (course.curriculum) {
+      if (Array.isArray(course.curriculum)) {
+          finalCurriculum = course.curriculum;
+      } else if (typeof course.curriculum === "string") {
+          try { finalCurriculum = JSON.parse(course.curriculum); } catch(e){}
+      }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
@@ -51,6 +69,8 @@ export default async function CourseDetail({ params }: { params: Promise<{ slug:
         
         {/* Details (Left Side) */}
         <div className="md:col-span-2 space-y-8">
+          
+          {/* 1. About This Course */}
           <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
             <h2 className="text-2xl font-bold text-[#082F49] mb-4">About This Course</h2>
             <p className="text-slate-600 leading-relaxed text-lg whitespace-pre-line">
@@ -58,14 +78,34 @@ export default async function CourseDetail({ params }: { params: Promise<{ slug:
             </p>
           </div>
 
+          {/* 2. What You Will Learn */}
           <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
             <h2 className="text-2xl font-bold text-[#082F49] mb-6">What You Will Learn</h2>
-            <div className="grid gap-4">
-              {course.curriculum && course.curriculum.length > 0 ? (
-                  course.curriculum.map((item: string, index: number) => (
-                    <div key={index} className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
-                      <CheckCircle className="text-green-500 shrink-0 mt-0.5" size={22} />
-                      <span className="text-slate-700 font-medium">{item}</span>
+            <div className="grid md:grid-cols-2 gap-4">
+              {finalLearningPoints.length > 0 ? (
+                  finalLearningPoints.map((item: string, index: number) => (
+                    <div key={index} className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-green-200 hover:bg-green-50 transition-colors">
+                      <CheckCircle className="text-green-500 shrink-0 mt-0.5" size={20} />
+                      <span className="text-slate-700 font-medium text-sm">{item}</span>
+                    </div>
+                  ))
+              ) : (
+                  <p className="text-slate-500 italic col-span-2">Learning points will be updated soon.</p>
+              )}
+            </div>
+          </div>
+
+          {/* 3. Course Curriculum (Topics) */}
+          <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+            <h2 className="text-2xl font-bold text-[#082F49] mb-6">Course Curriculum</h2>
+            <div className="space-y-3">
+              {finalCurriculum.length > 0 ? (
+                  finalCurriculum.map((item: string, index: number) => (
+                    <div key={index} className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-colors">
+                      <div className="bg-blue-100 p-2 rounded-full text-blue-600 shrink-0">
+                          <PlayCircle size={20} />
+                      </div>
+                      <span className="text-slate-700 font-medium">Lesson {index + 1}: {item}</span>
                     </div>
                   ))
               ) : (
@@ -73,11 +113,11 @@ export default async function CourseDetail({ params }: { params: Promise<{ slug:
               )}
             </div>
           </div>
+
         </div>
 
         {/* ENROLL CARD (Right Side) */}
         <div className="md:col-span-1">
-            {/* 👇 Ab ye perfectly chalega kyunke humne 'course' ko clean kar dia hai */}
             <CourseEnrollment course={course} slug={slug} />
         </div>
 

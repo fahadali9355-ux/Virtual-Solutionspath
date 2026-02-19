@@ -19,6 +19,7 @@ export default function AddCoursePage() {
     duration: "",
     lessons: "",
     desc: "",
+    learningPoints: "", // 👈 1. Nayi field add ki
   });
 
   // Image & Curriculum State
@@ -60,7 +61,7 @@ export default function AddCoursePage() {
     setCurriculum(curriculum.filter((_, i) => i !== index));
   };
 
-  // FORM SUBMIT (FormData use karein gay)
+  // FORM SUBMIT
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
@@ -72,7 +73,6 @@ export default function AddCoursePage() {
     setLoading(true);
 
     try {
-      // 👇 FormData Object banana zaroori hai file upload k liye
       const data = new FormData();
       data.append("title", formData.title);
       data.append("slug", formData.slug);
@@ -81,14 +81,14 @@ export default function AddCoursePage() {
       data.append("duration", formData.duration);
       data.append("lessons", formData.lessons);
       data.append("desc", formData.desc);
-      data.append("image", imageFile); // 👈 Asli File
+      data.append("learningPoints", formData.learningPoints); // 👈 2. Data backend ko bheja
+      data.append("image", imageFile); 
       
-      // Curriculum Array ko string bana kar bhejna parega
       data.append("curriculum", JSON.stringify(curriculum));
 
-      const res = await fetch("/api/admin/add-course", {
+      const res = await fetch("/api/admin/add-course", { // Note: API route ka naam check kar lein agar add-course hai ya add-courses
         method: "POST",
-        body: data, // JSON.stringify NAHI karna, direct data bhejna hai
+        body: data, 
       });
 
       const responseData = await res.json();
@@ -129,7 +129,7 @@ export default function AddCoursePage() {
            </div>
            <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">Slug (URL)</label>
-              <input name="slug" required onChange={handleChange} className="w-full p-3 border rounded-xl" placeholder="e.g. graphic-design"/>
+              <input name="slug" onChange={handleChange} className="w-full p-3 border rounded-xl" placeholder="Leave empty to auto-generate"/>
            </div>
         </div>
 
@@ -156,7 +156,6 @@ export default function AddCoursePage() {
               <input name="category" required onChange={handleChange} className="w-full p-3 border rounded-xl" placeholder="e.g. Design, Tech"/>
            </div>
            
-           {/* 👇 IMAGE UPLOAD UI */}
            <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">Course Thumbnail</label>
               
@@ -180,10 +179,23 @@ export default function AddCoursePage() {
            </div>
         </div>
 
+        {/* 👇 3. NAYA SECTION: What You Will Learn */}
+        <div className="space-y-2">
+           <label className="text-sm font-bold text-slate-700">What You Will Learn (Comma Separated)</label>
+           <textarea 
+              name="learningPoints" 
+              onChange={handleChange} 
+              rows={2} 
+              className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" 
+              placeholder="e.g. React Basics, Frontend Design, Backend API"
+           ></textarea>
+           <p className="text-xs text-slate-500">Separate each point with a comma (,)</p>
+        </div>
+
         {/* Description */}
         <div className="space-y-2">
            <label className="text-sm font-bold text-slate-700">Description</label>
-           <textarea name="desc" required onChange={handleChange} rows={4} className="w-full p-3 border rounded-xl" placeholder="Course details..."></textarea>
+           <textarea name="desc" required onChange={handleChange} rows={4} className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" placeholder="Course details..."></textarea>
         </div>
 
         {/* Curriculum Builder */}
@@ -200,7 +212,6 @@ export default function AddCoursePage() {
                  <Plus size={20} />
               </button>
            </div>
-           {/* List */}
            <div className="mt-4 space-y-2">
               {curriculum.map((item, index) => (
                 <div key={index} className="flex justify-between items-center bg-white p-3 rounded-lg border border-slate-200">
