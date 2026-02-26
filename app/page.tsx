@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from 'react'; 
-import { motion } from 'framer-motion';
-import { BookOpen, CheckCircle, ArrowRight, Star, Users, Briefcase, PlayCircle, Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone, LayoutDashboard, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { BookOpen, CheckCircle, ArrowRight, Star, Users, Briefcase, PlayCircle, Facebook, Twitter, Instagram, Linkedin, Mail, MapPin, Phone, LayoutDashboard, Loader2, Menu, X } from 'lucide-react';
 import Link from 'next/link'; 
 
 // --- ANIMATION CONFIG ---
@@ -37,6 +37,7 @@ const HERO_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644
 export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // 👇 STATES
   const [courses, setCourses] = useState<any[]>([]);
@@ -117,7 +118,7 @@ export default function HomePage() {
           {/* Auth Buttons (Dynamic Logic) */}
           <div className="flex gap-3">
             {isLoggedIn ? (
-              <Link href="/dashboard/courses">
+              <Link href="/dashboard/courses" className="hidden md:block">
                 <button className="bg-[#082F49] text-white px-6 py-2.5 rounded-full font-bold shadow-lg hover:bg-[#0C4A6E] transition-all text-sm flex items-center gap-2">
                   <LayoutDashboard size={18} />
                   Dashboard
@@ -128,16 +129,69 @@ export default function HomePage() {
                 <Link href="/login" className="hidden md:flex px-6 py-2.5 text-[#082F49] font-bold hover:bg-slate-50 rounded-full transition-all text-sm items-center">
                   Log In
                 </Link>
-                <Link href="/signup">
+                <Link href="/signup" className="hidden md:block">
                     <button className="bg-[#0284C7] text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-blue-500/30 hover:bg-[#0369A1] hover:-translate-y-0.5 transition-all text-sm">
                     Sign up
                     </button>
                 </Link>
               </>
             )}
+
+            {/* Mobile Menu Toggle Button */}
+            <button 
+              className="md:hidden p-2 text-slate-600 hover:text-blue-600 focus:outline-none"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
           </div>
         </div>
       </motion.nav>
+
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-x-0 top-20 z-40 bg-white/95 backdrop-blur-3xl shadow-2xl border-b border-slate-100 md:hidden"
+          >
+            <div className="flex flex-col space-y-6 px-6 py-8 text-center text-lg font-bold text-slate-700">
+              <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-600 transition-colors">Home</Link>
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  scrollToCourses();
+                }} 
+                className="hover:text-blue-600 transition-colors font-bold text-lg"
+              >
+                Courses
+              </button>
+              <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-600 transition-colors">About</Link>
+              <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-blue-600 transition-colors">Contact</Link>
+              
+              <div className="pt-6 border-t border-slate-100 flex flex-col gap-4">
+                {isLoggedIn ? (
+                  <Link href="/dashboard/courses" onClick={() => setIsMobileMenuOpen(false)} className="w-full bg-[#082F49] text-white py-4 rounded-xl shadow-lg hover:bg-[#0C4A6E] transition-all flex items-center justify-center gap-2">
+                    <LayoutDashboard size={18} /> Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-[#082F49] py-3 hover:bg-slate-50 rounded-xl transition-all">
+                      Log In
+                    </Link>
+                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)} className="w-full bg-[#0284C7] text-white py-4 rounded-xl shadow-lg shadow-blue-500/30 hover:bg-[#0369A1] transition-all flex items-center justify-center">
+                      Sign up
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* --- HERO SECTION --- */}
       <section className="pt-32 pb-24 px-6 bg-gradient-to-br from-[#F0F9FF] via-white to-white relative overflow-hidden">

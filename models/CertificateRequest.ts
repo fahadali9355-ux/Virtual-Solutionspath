@@ -5,15 +5,8 @@ const RequestSchema = new mongoose.Schema({
   email: { type: String, required: true },
   courseId: { type: String, required: true }, // Slug store karenge
   courseTitle: { type: String, required: true },
-  status: {
-    type: String,
-    enum: ["pending", "approved", "rejected"],
-    default: "pending", // Shuru main pending hoga
-  },
-  requestDate: {
-    type: Date,
-    default: Date.now,
-  },
+  status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending", },
+  requestDate: { type: Date, default: Date.now, },
 });
 
 const CertificateRequest = mongoose.models.CertificateRequest || mongoose.model("CertificateRequest", RequestSchema);
